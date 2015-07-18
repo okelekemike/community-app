@@ -1344,3 +1344,6 @@ h3.bolder {
     overflow: auto;
     font-size: 12px;
 }
+.footer {
+    background-color: azure;
+}
