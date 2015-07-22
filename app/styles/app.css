@@ -41,6 +41,12 @@ body {
     margin-bottom: 20px;
     min-height: 20px;
 }
+.paddedright25 {
+    padding-right: 25px;
+}
+.paddedright10 {
+    padding-right: 10px;
+}
 .paddedleft120 {
     padding-left: 12%;
 }
@@ -106,7 +112,9 @@ padding-bottom: 40px;
 .paddedbottom10 {
 padding-bottom: 10px;
 }
-
+.paddedbottom0px {
+    padding-bottom: 0px;
+}
 .paddedbottom20 {
 padding-bottom: 20px;
 }
@@ -214,7 +222,7 @@ tr.bottomborder td, tr.bottomborder th {
      padding-bottom:2px
 }
 tr.toppadding td, tr.toppadding th {
-     padding-top:8px
+     padding-top:8px;
 }
 
 tr.graybg td, tr.graybg th {
