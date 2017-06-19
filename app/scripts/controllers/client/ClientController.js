@@ -40,10 +40,19 @@
                 scope.actualClients = [];
                 scope.searchResults = [];
                 scope.filterText = "";
+                var searchString = scope.searchText;
+                searchString = searchString.replace(/(^"|"$)/g, '');
+                var exactMatch=false;
+                var n = searchString.localeCompare(scope.searchText);
+                if(n!=0)
+                {
+                    exactMatch=true;
+                }
+
                 if(!scope.searchText){
                     scope.initPage();
                 } else {
-                    resourceFactory.globalSearch.search({query: scope.searchText , resource: "clients,clientIdentifiers"}, function (data) {
+                    resourceFactory.globalSearch.search({query: searchString , resource: "clients,clientIdentifiers",exactMatch: exactMatch}, function (data) {
                         var arrayLength = data.length;
                         for (var i = 0; i < arrayLength; i++) {
                             var result = data[i];
@@ -57,11 +66,13 @@
                                 client.displayName = result.entityName;
                                 client.accountNo = result.entityAccountNo;
                                 client.id = result.entityId;
+                                client.externalId = result.entityExternalId;
                                 client.officeName = result.parentName;
                             }else if (result.entityType  == 'CLIENTIDENTIFIER'){
                                 numberOfClients = numberOfClients + 1;
                                 client.displayName = result.parentName;
                                 client.id = result.parentId;
+                                client.externalId = result.parentExternalId;
 
                             }
                             scope.actualClients.push(client);

@@ -61,7 +61,7 @@
 	                    <td>{{charge.active | YesOrNo}}</td>
 	                </tr>
 	                <tr>
-	                    <td>{{'label.heading.chargepaymentmode' | translate}}:</td>
+	                    <td>{{'label.heading.chargepaymentmode' | translate}}</td>
 	                    <td>{{charge.chargePaymentMode.value}}</td>
 	                </tr>
 	                <tr ng-show="charge.chargeTimeType.id == 9">
@@ -72,6 +72,14 @@
 	                    <td>{{'label.input.frequencyInterval' | translate}}</td>
 	                    <td>{{charge.feeInterval}}</td>
 	                </tr>
+					<tr ng-show="charge.incomeOrLiabilityAccount">
+						<td>{{'label.input.incomefromcharges' | translate}}</td>
+						<td>{{charge.incomeOrLiabilityAccount.name}} ({{charge.incomeOrLiabilityAccount.glCode}})</td>
+					</tr>
+                    <tr ng-show="charge.taxGroup">
+                        <td>{{'label.input.taxgroup' | translate}}</td>
+                        <td>{{charge.taxGroup.name}}</td>
+                    </tr>
 	            </table>
 	    	</div>
         </div>

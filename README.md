@@ -1,5 +1,7 @@
 # MifosX Community App
 
+[![Join the chat at https://gitter.im/openMF/community-app](https://badges.gitter.im/openMF/community-app.svg)](https://gitter.im/openMF/community-app?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This is the default web application built on top of the MifosX platform for the mifos user community. It is a Single-Page App (SPA) written in web standard technologies like JavaScript, CSS and HTML5. It leverages common popular frameworks/libraries such as AngularJS, Bootstrap and Font Awesome.
 
 ## Build Status
@@ -10,14 +12,14 @@ Travis
 
 ## Online Demo
 
-<a target="_blank" href="https://demo.openmf.org/beta">Access the online demo version here</a>
+<a target="_blank" href="https://demo.openmf.org">Access the online demo version here</a>
 
 
 ## Building from source
 
-1. Note: Ensure you have ```npm``` installed - goto http://nodejs.org/download/ to download installer for your OS.  On Ubuntu Linux you can use 'sudo apt-get install npm nodejs-legacy' (nodejs-legacy is required to avoid the ""/usr/bin/env: node: No such file or directory" problem).
-
-1. Tip: If you are using Ubuntu/Linux, then doing ```npm config set prefix ~``` prevents you from having to run npm as root.
+1. Ensure you have ```npm``` installed - goto http://nodejs.org/download/ to download installer for your OS.       
+<br/> Note: On Ubuntu Linux you can use 'sudo apt-get install npm nodejs-legacy' (nodejs-legacy is required to avoid the ""/usr/bin/env: node: No such file or directory" problem). 
+<br/> Tip: If you are using Ubuntu/Linux, then doing ```npm config set prefix ~``` prevents you from having to run npm as root.
 
 1. Clone this repository to your local filesystem (default branch is 'develop')
 
@@ -53,6 +55,10 @@ Travis
 1. Default username/password: mifos/password. This application will hit the demo server by default.
 
 You are done.
+
+### Connecting to a MifosX Platform using OAuth 2 authentication:
+
+Edit the value of property "security" in <a href="https://github.com/openMF/community-app/blob/develop/app/scripts/modules/configurations.js#L6">configurations.js</a> to "oauth"
 
 ### Connecting to a MifosX Platform running on a different host:
 
@@ -109,6 +115,11 @@ grunt serve
 ## Running the tests
 
 Just open test/SpecRunner.html in the browser.
+
+## Getting Started doc
+
+https://docs.google.com/document/d/1oXQ2mNojyDFkY_x4RBRPaqS-xhpnDE9coQnbmI3Pobw/edit#heading=h.vhgp8hu9moqn
+
 
 ## Contribution guidelines
 

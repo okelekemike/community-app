@@ -1,6 +1,6 @@
 describe("ViewClientController", function () {
     var clientResourceCallback, clientAccountResourceCallback, clientNotesResourceCallback, dataTablesResourceCallback,
-        runReportsResourceCallback;
+        runReportsResourceCallback, clientChargesResourceCallback;
     var statusTypes = ["Active", "Pending", "Transfer in progress", "Transfer on hold"];
 
     beforeEach(inject(function ($q) {
@@ -8,7 +8,26 @@ describe("ViewClientController", function () {
         this.scope = {};
 
         this.resourceFactory = {
-
+            addressFieldConfiguration:{
+                get:jasmine.createSpy('addressFieldConfiguration.get()').andCallFake(function(query, callback){
+                    addressFieldConfigurationCallback=callback;
+                })
+            },
+            clientAddress:{
+                get:jasmine.createSpy('clientAddress.get()').andCallFake(function(query,callback){
+                    clientAddressCallback=callback;
+                })
+            },
+            clientTemplateResource:{
+                get:jasmine.createSpy('clientTemplateResource.get()').andCallFake(function(query,callback){
+                    clientTemplateResource=callback;
+                })
+            },
+            configurationResource:{
+                get:jasmine.createSpy('configurationResource.get()').andCallFake(function(query,callback){
+                    configurationResourceCallback:callback;
+                })
+            },
             clientResource: {
                 get: jasmine.createSpy('clientResource.get()').andCallFake(function (query, callback) {
                     clientResourceCallback = callback;
@@ -32,6 +51,11 @@ describe("ViewClientController", function () {
             runReportsResource: {
                 get: jasmine.createSpy('runReportsResource.get()').andCallFake(function (callback) {
                     runReportsResourceCallback = callback;
+                })
+            },
+            clientChargesResource: {
+                getCharges: jasmine.createSpy('clientChargesResource.getCharges()').andCallFake(function (callback){
+                    clientChargesResourceCallback = callback;
                 })
             }
         };

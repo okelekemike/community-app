@@ -9,10 +9,98 @@
             scope.formData = {};
             scope.openLoan = true;
             scope.openSaving = true;
+            scope.openShares = true ;
             scope.updateDefaultSavings = false;
+            scope.charges = [];
+
+
+            // address
+            scope.addresses=[];
+            scope.view={};
+            scope.view.data=[];
+            var entityname="ADDRESS";
+            formdata={};
+
+
+            resourceFactory.clientTemplateResource.get(function(data)
+            {
+                scope.enableAddress=data.isAddressEnabled;
+                if(scope.enableAddress===true)
+                {
+
+                    resourceFactory.addressFieldConfiguration.get({entity:entityname},function(data){
+
+
+                        for(var i=0;i<data.length;i++)
+                        {
+                            data[i].field='scope.view.'+data[i].field;
+                            eval(data[i].field+"="+data[i].is_enabled);
+
+                        }
+
+
+                    })
+
+
+                    resourceFactory.clientAddress.get({clientId:routeParams.id},function(data)
+                    {
+
+                        scope.addresses=data;
+
+
+                    })
+
+
+                }
+
+            });
+
+
+
+
+            scope.routeTo=function()
+            {
+                location.path('/address/'+ routeParams.id);
+            }
+
+            scope.ChangeAddressStatus=function(id,status,addressId)
+            {
+
+                formdata.isActive=!status
+                formdata.addressId=addressId
+                resourceFactory.clientAddress.put({clientId:id},formdata,function(data)
+                {
+                    route.reload();
+                })
+            }
+
+            scope.routeToEdit=function(clientId,addressId)
+            {
+                location.path('/editAddress/'+clientId+'/'+addressId+'/'+ routeParams.id);
+
+
+            }
+
+
+            // end of address
+            
+            
+            
             scope.routeToLoan = function (id) {
                 location.path('/viewloanaccount/' + id);
             };
+            scope.routeToChargeOverview = function () {
+                location.path(scope.pathToChargeOverview());
+            };
+
+            scope.pathToChargeOverview =function (){
+                return ('/viewclient/'+ scope.client.id + '/chargeoverview');
+            }
+
+            scope.routeToCharge = function (chargeId) {
+                location.path('/viewclient/'+ scope.client.id + '/charges/' + chargeId);
+            };
+
             scope.routeToSaving = function (id, depositTypeCode) {
                 if (depositTypeCode === "depositAccountType.savingsDeposit") {
                     location.path('/viewsavingaccount/' + id);
@@ -22,6 +110,11 @@
                     location.path('/viewrecurringdepositaccount/' + id);
                 }
             };
+
+            scope.routeToShareAccount = function(id) {
+                location.path('/viewshareaccount/'+id)
+            } ;
+
             scope.haveFile = [];
             resourceFactory.clientResource.get({clientId: routeParams.id}, function (data) {
                 scope.client = data;
@@ -66,7 +159,7 @@
                     }
                 }
 
-                
+
                 var clientStatus = new mifosX.models.ClientStatus();
 
                 if (clientStatus.statusKnown(data.status.value)) {
@@ -308,8 +401,32 @@
                             break;
                         }
                     }
+                    scope.totalAllSavingsAccountsBalanceBasedOnCurrency=[];
+                    for (var i in data.savingsAccounts) {
+                        if (!scope.isSavingClosed(data.savingsAccounts[i])) {
+                            var isNewEntryMap = true;
+                           for(var j in scope.totalAllSavingsAccountsBalanceBasedOnCurrency){
+                               if(scope.totalAllSavingsAccountsBalanceBasedOnCurrency[j].code === data.savingsAccounts[i].currency.code){
+                                   isNewEntryMap = false;
+                                   var totalSavings = scope.totalAllSavingsAccountsBalanceBasedOnCurrency[j].totalSavings + data.savingsAccounts[i].accountBalance;
+                                   scope.totalAllSavingsAccountsBalanceBasedOnCurrency[j].totalSavings = totalSavings;
+                               }
+                           }
+                           if(isNewEntryMap){
+                               var map = {};
+                               map.code = data.savingsAccounts[i].currency.code;
+                               map.totalSavings = data.savingsAccounts[i].accountBalance;
+                               scope.totalAllSavingsAccountsBalanceBasedOnCurrency.push(map);
+                           }
+                        }
+                    }
                 }
             });
+
+            resourceFactory.clientChargesResource.getCharges({clientId: routeParams.id, pendingPayment:true}, function (data) {
+                scope.charges = data.pageItems;
+            });
+
             scope.isClosed = function (loanaccount) {
                 if (loanaccount.status.code === "loanStatusType.closed.written.off" ||
                     loanaccount.status.code === "loanStatusType.closed.obligations.met" ||
@@ -331,6 +448,15 @@
                     return false;
                 }
             };
+
+            scope.isShareClosed = function (shareAccount) {
+                if ( shareAccount.status.code === "shareAccountStatusType.closed" ||
+                    shareAccount.status.code === "shareAccountStatusType.rejected") {
+                    return true;
+                } else {
+                    return false;
+                }
+            };
             scope.setLoan = function () {
                 if (scope.openLoan) {
                     scope.openLoan = false
@@ -345,6 +471,16 @@
                     scope.openSaving = true;
                 }
             };
+
+            scope.setShares = function () {
+                if (scope.openShares) {
+                    scope.openShares = false;
+                } else {
+                    scope.openShares = true;
+                }
+            };
+
+
             resourceFactory.clientNotesResource.getAllNotes({clientId: routeParams.id}, function (data) {
                 scope.clientNotes = data;
             });
@@ -473,6 +609,14 @@
                 }
             };
 
+            scope.isShareNotClosed = function (shareAccount) {
+                if ( shareAccount.status.code === "shareAccountStatusType.closed" ||
+                    shareAccount.status.code === "shareAccountStatusType.rejected") {
+                    return false;
+                } else {
+                    return true;
+                }
+            };
             scope.saveNote = function () {
                 resourceFactory.clientResource.save({clientId: routeParams.id, anotherresource: 'notes'}, this.formData, function (data) {
                     var today = new Date();
@@ -492,101 +636,12 @@
             scope.downloadClientIdentifierDocument = function (identifierId, documentId) {
                 console.log(identifierId, documentId);
             };
-            // devcode: !production
-            // *********************** InVenture controller ***********************
 
-            scope.fetchInventureScore = function () {
-                // dummy data for the graph - DEBUG purpose
-                var inventureScore = getRandomInt(450, 800);
-                var natAverage = getRandomInt(450, 800);
-                var industryAverage = getRandomInt(450, 800);
-                var inventureMinScore = 300;
-                var inventureMaxScore = 850;
-
-                // dummy data for inventure loan recommendation - DEBUG purpose
-                scope.inventureAgricultureLimit = '21,000';
-                scope.inventureFishermenLimit = '27,500';
-                scope.inventureHousingLimit = '385,000';
-                scope.inventureBusinessLimit = '10,000';
-
-                // this part is used to generate data to see the look of the graph
-                function getRandomInt(min, max) {
-                    return Math.floor(Math.random() * (max - min + 1)) + min;
-                }
-
-                // CHART1 - comparison chart control
-                var comparisonData = [
-                    {
-                        key: "Score Comparison",
-                        values: [
-                            {
-                                "label": "National Average",
-                                "value": (natAverage)
-                            },
-                            {
-                                "label": "Agriculture Average",
-                                "value": (industryAverage)
-                            },
-                            {
-                                "label": "This Client",
-                                "value": (inventureScore)
-                            }
-                        ]
-                    }
-                ];
-
-                // add the comparison chart to the viewclient.html
-                nv.addGraph(function () {
-                    var comparisonChart = nv.models.discreteBarChart()
-                        .x(function (d) {
-                            return d.label
-                        })
-                        .y(function (d) {
-                            return d.value
-                        })
-                        .staggerLabels(true)
-                        .tooltips(true)
-                        .showValues(true);
-
-                    // set all display value to integer
-                    comparisonChart.yAxis.tickFormat(d3.format('d'));
-                    comparisonChart.valueFormat(d3.format('d'));
-                    comparisonChart.forceY([inventureMinScore, inventureMaxScore]);
-
-                    d3.select('#inventureBarChart svg')
-                        .datum(comparisonData)
-                        .transition().duration(1500)
-                        .call(comparisonChart);
-
-                    nv.utils.windowResize(comparisonChart.update);
-                    return comparisonChart;
+            scope.waiveCharge = function(chargeId){
+                resourceFactory.clientChargesResource.waive({clientId: routeParams.id, resourceType:chargeId}, function (data) {
+                    route.reload();
                 });
-
-                // CHART2 - inventure score bullet chart control
-                nv.addGraph(function () {
-                    var bullet = nv.models.bulletChart()
-                        .tooltips(false);
-
-                    d3.select('#inventureBulletChart svg')
-                        .datum(scoreData())
-                        .transition().duration(1500)
-                        .call(bullet);
-
-                    nv.utils.windowResize(bullet.update);
-                    return bullet;
-                });
-
-                function scoreData() {
-                    return {
-                        "title": "",
-                        "ranges": [(inventureMinScore - 300), (inventureMaxScore - 300)],
-                        "measures": [(inventureScore - 300)],
-                        "markers": [(inventureScore - 300)]};
-                }
-
-                // this will be used to display the score on the viewclient.html
-                scope.inventureScore = inventureScore;
-            };
+            }
 
             scope.showSignature = function()
             {
@@ -663,7 +718,8 @@
                 $scope.cancel = function () {
                     $modalInstance.dismiss('cancel');
                 };
-            }
+            };
+
         }
     });
 
